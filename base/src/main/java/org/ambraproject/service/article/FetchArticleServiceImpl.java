@@ -21,6 +21,7 @@ import org.ambraproject.models.CitedArticle;
 import org.ambraproject.service.cache.Cache;
 import org.ambraproject.service.hibernate.HibernateServiceImpl;
 import org.ambraproject.service.xml.XMLService;
+import org.ambraproject.util.StringReplacer;
 import org.ambraproject.util.TextUtils;
 import org.ambraproject.util.XPathUtil;
 import org.ambraproject.views.AuthorView;
@@ -171,34 +172,20 @@ public class FetchArticleServiceImpl extends HibernateServiceImpl implements Fet
     return doc;
   }
 
-  /**
-   *  Patterns for <corresp></corresp>  and <email></email> tags
-   */
-  private static final Pattern[] PATTERNS = {
-    Pattern.compile("<corresp(.*?)>"),
-    Pattern.compile("</corresp>"),
-    Pattern.compile("<email(?:" +
+  private static final Pattern EMAIL_TAG = Pattern.compile("<email(?:" +
       "(?:\\s+xmlns:xlink\\s*=\\s*\"http://www.w3.org/1999/xlink\"\\s*)|" +
       "(?:\\s+xlink:type\\s*=\\s*\"simple\"\\s*)" +
-      ")*>(.*?)</email>"),
-    Pattern.compile("^E-mail:"),
-    Pattern.compile("^\\* E-mail:"),
-    Pattern.compile("\\*To whom"),
-    Pattern.compile("\\* To whom")
-  };
+      ")*>(.*?)</email>");
 
-  /**
-   *  Pattern replaceements for <corresp></corresp>  and <email></email> tags
-   */
-  private static final String[] REPLACEMENTS = {
-    "",
-    "",
-    "<a href=\"mailto:$1\">$1</a>",
-    "<span class=\"email\">* E-mail:</span>",
-    "<span class=\"email\">* E-mail:</span>",
-    "<span class=\"email\">*</span>To whom",
-    "<span class=\"email\">*</span>To whom"
-  };
+  private static final StringReplacer TAG_REPLACER = StringReplacer.builder()
+      .deleteRegex("<corresp(.*?)>")
+      .deleteExact("</corresp>")
+      .replaceRegex(EMAIL_TAG, "<a href=\"mailto:$1\">$1</a>")
+      .replaceRegex("^E-mail:", "<span class=\"email\">* E-mail:</span>")
+      .replaceRegex("^\\* E-mail:", "<span class=\"email\">* E-mail:</span>")
+      .replaceExact("*To whom", "<span class=\"email\">*</span>To whom")
+      .replaceExact("* To whom", "<span class=\"email\">*</span>To whom")
+      .build();
 
   /**
    * Get the authors and some meta data for a given article.  I wanted to make this method bigger, but
@@ -551,11 +538,7 @@ public class FetchArticleServiceImpl extends HibernateServiceImpl implements Fet
    * @return html fragment
    */
   private static String transFormCorresponding(String source) {
-    for (int index = 0; index < PATTERNS.length; index++) {
-      source = PATTERNS[index].matcher(source).replaceAll(REPLACEMENTS[index]);
-    }
-
-    return source;
+    return TAG_REPLACER.replace(source);
   }
 
   /**
