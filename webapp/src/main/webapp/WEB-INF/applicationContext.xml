@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  $HeadURL$
-  $Id$
+  Copyright (c) 2006-2013 by Public Library of Science
 
-  Copyright (c) 2006-2010 by Public Library of Science
   http://plos.org
   http://ambraproject.org
 
@@ -33,7 +31,7 @@
         factory-method="createFactory"/>
 
   <!--Ambra developer beans here -->
-  <bean id="configurationStore" class="org.topazproject.ambra.configuration.ConfigurationStore"
+  <bean id="configurationStore" class="org.ambraproject.configuration.ConfigurationStore"
         factory-method="getInstance"/>
   <bean id="ambraConfiguration" factory-bean="configurationStore" factory-method="getConfiguration"/>
 
@@ -42,6 +40,8 @@
     <property name="articleTransformService" ref="articleTransformService" />
     <property name="fileStoreService" ref="fileStoreService" />
     <property name="articleHtmlCache" ref="articleHtmlCache" />
+    <property name="pubGetLookupService" ref="pubGetLookupService"/>
+    <property name="guestCrossRefUrl" value="${ambra.services.crossref.guestquery.url}"/>
   </bean>
 
   <bean id="articleAssetService" class="org.ambraproject.service.article.ArticleAssetServiceImpl">
@@ -123,6 +123,7 @@
   <bean id="articleService" class="org.ambraproject.service.article.ArticleServiceImpl">
     <property name="sessionFactory" ref="hibernateSessionFactory"/>
     <property name="permissionsService" ref="permissionsService"/>
+    <property name="crossRefLookupService" ref="crossRefLookupService"/>
   </bean>
 
   <bean id="feedService" class="org.ambraproject.service.feed.FeedServiceImpl">
@@ -163,11 +164,6 @@
   <bean id="pubGetLookupService" class="org.ambraproject.service.pubget.PubGetLookupServiceImpl">
     <property name="httpClient" ref="httpClient"/>
     <property name="pubGetUrl" value="${ambra.services.pubget.url}"/>
-  </bean>
-
-  <bean id="findArticleService" class="org.ambraproject.service.article.FindArticleServiceImpl">
-    <property name="crossRefLookupService" ref="crossRefLookupService"/>
-    <property name="pubGetLookupService" ref="pubGetLookupService"/>
   </bean>
 
   <!-- Warning. Spring does not autowire 'simple' properties like primitives, Strings and Classes -->
@@ -436,6 +432,7 @@
 
   <bean id="taxonomyService" class="org.ambraproject.service.taxonomy.TaxonomyServiceImpl">
     <property name="cache" ref="taxonomyCache" />
+    <property name="searchService" ref="searchService" />
   </bean>
 
 </beans>

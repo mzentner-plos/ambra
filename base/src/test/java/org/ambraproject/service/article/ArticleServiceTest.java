@@ -100,7 +100,7 @@ public class ArticleServiceTest extends BaseTest {
     category2ForArticle1.setLastModified(new Date());
     categoriesForArticle1.add(category2ForArticle1);
     Category category3ForArticle1 = new Category();
-    category3ForArticle1.setPath("Fake Main Category/for/category3ForArticle1");
+    category3ForArticle1.setPath("/Fake Main Category/for/category3ForArticle1");
     categoriesForArticle1.add(category3ForArticle1);
     article1.setCategories(categoriesForArticle1);
 
@@ -288,17 +288,17 @@ public class ArticleServiceTest extends BaseTest {
 
     Set<Category> categoriesForArticle2 = new HashSet<Category>();
     Category category1ForArticle2 = new Category();
-    category1ForArticle2.setPath("Fake Main Category/for/category1ForArticle2");
+    category1ForArticle2.setPath("/Fake Main Category/for/category1ForArticle2");
     category1ForArticle2.setCreated(new Date());
     category1ForArticle2.setLastModified(new Date());
     categoriesForArticle2.add(category1ForArticle2);
     Category category2ForArticle2 = new Category();
-    category2ForArticle2.setPath("Fake Main Category/for/category2ForArticle2");
+    category2ForArticle2.setPath("/Fake Main Category/for/category2ForArticle2");
     category2ForArticle2.setCreated(new Date());
     category2ForArticle2.setLastModified(new Date());
     categoriesForArticle2.add(category2ForArticle2);
     Category category3ForArticle2 = new Category();
-    category3ForArticle2.setPath("Fake Main Category/for/category3ForArticle2");
+    category3ForArticle2.setPath("/Fake Main Category/for/category3ForArticle2");
     categoriesForArticle2.add(category3ForArticle2);
     article2.setCategories(categoriesForArticle2);
 
@@ -686,12 +686,16 @@ public class ArticleServiceTest extends BaseTest {
 
     article.setAuthors(authors);
 
+    Set<String> typesForResArticle = new HashSet<String>();
+    typesForResArticle.add("http://rdf.plos.org/RDF/articleType/Research%20Article");
+
     List<ArticleRelationship> articleRelationships = new ArrayList<ArticleRelationship>(1);
     Article unpubbedArticle = new Article();
     unpubbedArticle.setDoi("id:doi-unpubbed-related-article");
     unpubbedArticle.setState(Article.STATE_UNPUBLISHED);
     unpubbedArticle.setRights("article rights");
     unpubbedArticle.setTitle("foo");
+    unpubbedArticle.setTypes(typesForResArticle);
 
     ArticleRelationship unpubbedRelationship = new ArticleRelationship();
     unpubbedRelationship.setParentArticle(article);
@@ -705,6 +709,7 @@ public class ArticleServiceTest extends BaseTest {
     pubbedArticle.setDoi("id:doi-pubbed-related-article");
     pubbedArticle.setState(Article.STATE_ACTIVE);
     pubbedArticle.setTitle("foo");
+    pubbedArticle.setTypes(typesForResArticle);
 
     ArticleRelationship pubbedRelationship = new ArticleRelationship();
     pubbedRelationship.setParentArticle(article);
@@ -725,12 +730,31 @@ public class ArticleServiceTest extends BaseTest {
     //even admins shouldn't see this related article
     Article disabledArticle = new Article();
     disabledArticle.setDoi("id:doi-disabled-related-article");
+    disabledArticle.setTitle("disabled article");
     disabledArticle.setState(Article.STATE_DISABLED);
     ArticleRelationship disableRelationship = new ArticleRelationship();
     disableRelationship.setParentArticle(article);
     disableRelationship.setOtherArticleID(Long.valueOf(dummyDataStore.store(disabledArticle)));
     disableRelationship.setType("foo");
     articleRelationships.add(disableRelationship);
+
+
+    Article eocArticle = new Article();
+    eocArticle.setDoi("id:doi-object-of-concern-relationship-article");
+    eocArticle.setState(Article.STATE_ACTIVE);
+    eocArticle.setTitle("foo");
+    Set<String> typesForEocArticle = new HashSet<String>();
+    typesForEocArticle.add("http://rdf.plos.org/RDF/articleType/Expression%20of%20Concern");
+    eocArticle.setTypes(typesForEocArticle);
+
+    //Expression of Concern relationship
+    ArticleRelationship eocRelationship = new ArticleRelationship();
+    eocRelationship.setParentArticle(article);
+    eocRelationship.setOtherArticleID(Long.valueOf(dummyDataStore.store(eocArticle)));
+    eocRelationship.setType("object-of-concern");
+
+    eocRelationship.setOtherArticleDoi(eocArticle.getDoi());
+    articleRelationships.add(eocRelationship);
 
     article.setRelatedArticles(articleRelationships);
 
@@ -744,9 +768,9 @@ public class ArticleServiceTest extends BaseTest {
 
     return new Object[][]{
         //admins should see unpubbed article
-        {article.getDoi(), article, DEFAULT_ADMIN_AUTHID, new Article[]{unpubbedArticle, pubbedArticle}},
+        {article.getDoi(), article, DEFAULT_ADMIN_AUTHID, new Article[]{unpubbedArticle, pubbedArticle, eocArticle}},
         //users should not
-        {article.getDoi(), article, DEFAULT_USER_AUTHID, new Article[]{pubbedArticle}}
+        {article.getDoi(), article, DEFAULT_USER_AUTHID, new Article[]{pubbedArticle, eocArticle}}
     };
   }
 

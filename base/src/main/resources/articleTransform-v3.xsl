@@ -234,6 +234,10 @@
       <xsl:for-each select="//back/fn-group/fn[@fn-type='other']/node()">
         <p><xsl:apply-templates/></p>
       </xsl:for-each>
+      <!--Fix for FEND-886-->
+      <xsl:for-each select="//front/article-meta/author-notes/fn[@fn-type='other']/node()">
+        <p><xsl:apply-templates/></p>
+      </xsl:for-each>
     </xsl:template>
 
     <!-- 1/4/12: plos-specific template (creates editors summary) -->
@@ -735,6 +739,9 @@
           <xsl:for-each select="ref">
             <xsl:sort data-type="number" select="label"/>
             <li>
+              <span class="label">
+                <xsl:value-of select="label"/>.
+              </span>
               <a>
                 <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
                 <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
@@ -745,19 +752,71 @@
               <xsl:if test="$cit[@publication-type='journal']">
                 <xsl:variable name="apos">'</xsl:variable>
                 <xsl:if test="$cit/extraCitationInfo">
-                  <xsl:variable name="citedArticleID"><xsl:value-of select="$cit/extraCitationInfo/@citedArticleID"/></xsl:variable>
-                  <xsl:variable name="findURL">
-                    <xsl:value-of select="concat($pubAppContext,'/article/findcited/', $citedArticleID)" />
-                  </xsl:variable>
-                  <!-- only output 'find this article' link if there is no ext-link already in the citation -->
                   <xsl:if test="not(element-citation//ext-link | mixed-citation//ext-link | nlm-citation//ext-link)">
-                    <xsl:element name="a">
+                    <xsl:element name="ul">
                       <xsl:attribute name="class">find</xsl:attribute>
-                      <xsl:attribute name="href"><xsl:value-of select="$findURL"/></xsl:attribute>
-                      Find this article online
+                      <xsl:attribute name="data-citedArticleID"><xsl:value-of select="$cit/extraCitationInfo/@citedArticleID"/></xsl:attribute>
+                      <xsl:if test="$cit/extraCitationInfo/@doi">
+                        <xsl:attribute name="data-doi"><xsl:value-of select="$cit/extraCitationInfo/@doi"/></xsl:attribute>
+                      </xsl:if>
+                      <xsl:if test="$cit/extraCitationInfo/@crossRefUrl">
+                        <xsl:element name="li">
+                          <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$cit/extraCitationInfo/@crossRefUrl"/></xsl:attribute>
+                            <xsl:attribute name="onclick">window.open(this.href, 'ambraFindArticle', ''); return false;</xsl:attribute>
+                            <xsl:attribute name="title">Go to article in CrossRef</xsl:attribute>
+                            CrossRef
+                          </xsl:element>
+                        </xsl:element>
+                      </xsl:if>
+                      <xsl:if test="$cit/extraCitationInfo/@pubGetUrl">
+                        <xsl:element name="li">
+                          <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$cit/extraCitationInfo/@pubGetUrl"/></xsl:attribute>
+                            <xsl:attribute name="onclick">window.open(this.href, 'ambraFindArticle', ''); return false;</xsl:attribute>
+                            <xsl:attribute name="title">Get the full text PDF from PubGet</xsl:attribute>
+                            PubGet/PDF
+                          </xsl:element>
+                        </xsl:element>
+                      </xsl:if>
+                      <xsl:if test="$cit/extraCitationInfo/@pubMedUrl">
+                        <xsl:element name="li">
+                          <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$cit/extraCitationInfo/@pubMedUrl"/></xsl:attribute>
+                            <xsl:attribute name="onclick">window.open(this.href, 'ambraFindArticle', ''); return false;</xsl:attribute>
+                            <xsl:attribute name="title">Go to article in PubMed</xsl:attribute>
+                            PubMed/NCBI
+                          </xsl:element>
+                        </xsl:element>
+                      </xsl:if>
+                      <xsl:if test="$cit/extraCitationInfo/@googleScholarUrl">
+                        <xsl:element name="li">
+                          <xsl:element name="a">
+                            <xsl:attribute name="href"><xsl:value-of select="$cit/extraCitationInfo/@googleScholarUrl"/></xsl:attribute>
+                            <xsl:attribute name="onclick">window.open(this.href, 'ambraFindArticle', ''); return false;</xsl:attribute>
+                            <xsl:attribute name="title">Go to article in Google Scholar</xsl:attribute>
+                            Google Scholar
+                          </xsl:element>
+                        </xsl:element>
+                      </xsl:if>
+                    </xsl:element>
+                  </xsl:if>
+                  <xsl:if test="element-citation//ext-link | mixed-citation//ext-link | nlm-citation//ext-link">
+                    <xsl:element name="ul">
+                      <xsl:attribute name="class">find-nolinks</xsl:attribute>
                     </xsl:element>
                   </xsl:if>
                 </xsl:if>
+                <xsl:if test="not($cit/extraCitationInfo)">
+                  <xsl:element name="ul">
+                    <xsl:attribute name="class">find-nolinks</xsl:attribute>
+                  </xsl:element>
+                </xsl:if>
+              </xsl:if>
+              <xsl:if test="$cit[@publication-type!='journal']">
+                <xsl:element name="ul">
+                  <xsl:attribute name="class">find-nolinks</xsl:attribute>
+                </xsl:element>
               </xsl:if>
             </li>
           </xsl:for-each>
@@ -966,37 +1025,35 @@
     <xsl:template match="fig | table-wrap">
       <xsl:variable name="figId"><xsl:value-of select="@id"/></xsl:variable>
       <xsl:variable name="apos">'</xsl:variable>
-      <xsl:variable name="imageURI"><xsl:value-of select=".//graphic/@xlink:href"/></xsl:variable>
-      <xsl:variable name="slideshowURL">
-        <xsl:value-of select="concat($pubAppContext, '/article/fetchObject.action?uri=',
-                $imageURI,'&amp;representation=PNG_M')"/>
-      </xsl:variable>
-
-      <xsl:variable name="pptURL">
-        <xsl:value-of select="concat('/article/',$imageURI, '/powerpoint')"/>
-      </xsl:variable>
-
-      <xsl:variable name="bigImgURL">
-        <xsl:value-of
-            select="concat('/article/',$imageURI,'/largerimage')"/>
-      </xsl:variable>
-      <xsl:variable name="bigImgDOI">
-        <xsl:value-of select="concat($imageURI,'.PNG_L')"/>
-      </xsl:variable>
-
-      <xsl:variable name="origImgURL">
-        <xsl:value-of select="concat('/article/',$imageURI,'/originalimage')"/>
-      </xsl:variable>
-      <xsl:variable name="origImgDOI">
-        <xsl:value-of select="concat($imageURI,'.TIF')"/>
-      </xsl:variable>
-
-
-      <xsl:variable name="targetURI">
-        <xsl:value-of select="substring($imageURI, 1, (string-length($imageURI)-5))"/>
-      </xsl:variable>
-
       <xsl:if test=".//graphic">
+        <xsl:variable name="imageURI"><xsl:value-of select=".//graphic/@xlink:href"/></xsl:variable>
+        <xsl:variable name="slideshowURL">
+          <xsl:value-of select="concat($pubAppContext, '/article/fetchObject.action?uri=',
+                  $imageURI,'&amp;representation=PNG_M')"/>
+        </xsl:variable>
+
+        <xsl:variable name="pptURL">
+          <xsl:value-of select="concat('/article/',$imageURI, '/powerpoint')"/>
+        </xsl:variable>
+
+        <xsl:variable name="bigImgURL">
+          <xsl:value-of select="concat('/article/',$imageURI,'/largerimage')"/>
+        </xsl:variable>
+        <xsl:variable name="bigImgDOI">
+          <xsl:value-of select="concat($imageURI,'.PNG_L')"/>
+        </xsl:variable>
+
+        <xsl:variable name="origImgURL">
+          <xsl:value-of select="concat('/article/',$imageURI,'/originalimage')"/>
+        </xsl:variable>
+        <xsl:variable name="origImgDOI">
+          <xsl:value-of select="concat($imageURI,'.TIF')"/>
+        </xsl:variable>
+
+        <xsl:variable name="targetURI">
+          <xsl:value-of select="substring($imageURI, 1, (string-length($imageURI)-5))"/>
+        </xsl:variable>
+
         <div class="figure">
           <!--id needs to be attached to "figure" div for proper anchor linking-->
           <xsl:attribute name="id"><xsl:value-of select="translate($figId, '.', '-')"/> </xsl:attribute>
@@ -1082,25 +1139,82 @@
             </ul>
           </div>
           <!--end figure download-->
-          <p><strong>
-              <strong><xsl:apply-templates select="label"/></strong>
+          <p>
+            <strong>
+              <xsl:apply-templates select="label"/>
               <xsl:if test="caption/title">
                 <xsl:text> </xsl:text>
                 <span>
                   <xsl:apply-templates select="caption/title"/>
                 </span>
               </xsl:if>
-            </strong></p>
-            <xsl:apply-templates select="caption/node()[not(self::title)]"/>
-            <xsl:if test="object-id[@pub-id-type='doi']">
-              <span><xsl:apply-templates select="object-id[@pub-id-type='doi']"/></span>
-            </xsl:if>
-          <div class="clearer"/>
+            </strong>
+          </p>
+          <xsl:apply-templates select="caption/node()[not(self::title)]"/>
+          <xsl:if test="object-id[@pub-id-type='doi']">
+            <span><xsl:apply-templates select="object-id[@pub-id-type='doi']"/></span>
+          </xsl:if>
         </div>
       </xsl:if>
-        <xsl:if test="not(.//graphic)">
-          <xsl:apply-templates />
+      <xsl:if test="not(.//graphic)">
+        <xsl:if test=".//table">
+          <div class="table-wrap">
+            <xsl:attribute name="name">
+              <xsl:value-of select="$figId"/>
+            </xsl:attribute>
+            <xsl:attribute name="id">
+              <xsl:value-of select="$figId"/>
+            </xsl:attribute>
+            <a><xsl:attribute name="name">
+              <xsl:value-of select="$figId"/>
+            </xsl:attribute></a>
+            <div class="expand">
+              <xsl:attribute name="onclick">
+                return tableOpen(<xsl:value-of select="concat($apos, $figId, $apos)"/>, "HTML");
+              </xsl:attribute>
+            </div>
+            <div class="table">
+              <xsl:apply-templates select=".//table"/>
+            </div>
+            <p class="caption">
+              <xsl:apply-templates select="label"/>
+              <xsl:if test="caption/title">
+                <xsl:text> </xsl:text>
+                <span>
+                  <xsl:apply-templates select="caption/title"/>
+                </span>
+              </xsl:if>
+            </p>
+            <xsl:apply-templates select="caption/node()[not(self::title)]"/>
+            <xsl:if test="table-wrap-foot">
+              <xsl:for-each select="table-wrap-foot//fn">
+                <div class="table-footnote">
+                  <span class="fn-label">
+                    <xsl:value-of select="label"/>
+                  </span>
+                  <span class="fn-text">
+                    <xsl:apply-templates select="p"/>
+                  </span>
+                </div>
+              </xsl:for-each>
+            </xsl:if>
+            <div class="table-download">
+              <div class="icon">
+                <xsl:attribute name="onclick">
+                  return tableOpen(<xsl:value-of select="concat($apos, $figId, $apos)"/>, "CSV");
+                </xsl:attribute>
+                CSV
+              </div>
+              <a class="label">
+                <xsl:attribute name="onclick">
+                  return tableOpen(<xsl:value-of select="concat($apos, $figId, $apos)"/>, "CSV");
+                </xsl:attribute>
+                Download CSV
+              </a>
+            </div>
+          </div>
         </xsl:if>
+      </xsl:if>
     </xsl:template>
 
     <!-- 1/4/12: plos-specific template -->
@@ -1218,18 +1332,43 @@
     <xsl:template match="media" />
     <xsl:template match="license-p" /> <!-- 1/4/12: removed p from list, we process independently -->
 
-    <!-- 1/4/12: plos modifications -->
-    <xsl:template match="p">
-      <a>
-        <xsl:call-template name="makeIdNameFromXpathLocation"/>
-      </a>
-	    <p>
-	      <xsl:apply-templates/>
-	    </p>
-	    <xsl:call-template name="newline1"/>
-	  </xsl:template>
+  <!-- 1/4/12: plos modifications -->
+  <!--if this changes, the two templates below, "preSiClass", and "postSiClass" have to change, too-->
+  <xsl:template match="p">
+    <a>
+      <xsl:call-template name="makeIdNameFromXpathLocation"/>
+    </a>
+    <p>
+      <xsl:apply-templates/>
+    </p>
+    <xsl:call-template name="newline1"/>
+  </xsl:template>
 
-    <!-- 1/4/12: suppress, we don't use -->
+  <!--3/1/13, add class to a specific paragraph for after styling-->
+  <!--note that if 'match="p"' changes, this will have to change-->
+  <xsl:template name="preSiClass">
+    <a>
+      <xsl:call-template name="makeIdNameFromXpathLocation"/>
+    </a>
+    <p class="preSiDOI">
+      <xsl:apply-templates/>
+    </p>
+    <xsl:call-template name="newline1"/>
+  </xsl:template>
+
+  <!--3/4/13 add class to paragraphs appearing after doi in supplementary doi-->
+  <!--for styling-->
+  <xsl:template name="postSiClass">
+    <a>
+      <xsl:call-template name="makeIdNameFromXpathLocation"/>
+    </a>
+    <p class="postSiDOI">
+      <xsl:apply-templates/>
+    </p>
+    <xsl:call-template name="newline1"/>
+  </xsl:template>
+
+  <!-- 1/4/12: suppress, we don't use -->
     <xsl:template match="@content-type" />
 
     <!-- 1/4/12: plos-specific template (overrides nlm list-item/p[not(preceding-sibling::*[not(self::label)])]) -->
@@ -1310,7 +1449,7 @@
     <!-- 1/4/12: plos-specific template -->
     <xsl:template match="mixed-citation">
       <xsl:apply-templates/>
-      <xsl:if test="extraCitationInfo/@doi and not(ext-link)">
+      <xsl:if test="extraCitationInfo/@doi and not(ext-link) and not(comment/ext-link)">
         <xsl:variable name="citedArticleDoi"><xsl:value-of select="extraCitationInfo/@doi"/></xsl:variable>
         doi:
         <xsl:element name="a">
@@ -1325,6 +1464,10 @@
       <xsl:apply-templates select="surname"/>
       <xsl:text> </xsl:text>
       <xsl:apply-templates select="given-names"/>
+      <xsl:if test="suffix">
+        <xsl:text> </xsl:text>
+        <xsl:apply-templates select="suffix"/>
+      </xsl:if>
     </xsl:template>
 
     <!-- 1/4/12: plos-specific templates for legacy references (element-citation: journal/no citation, book/other, supporting templates -->
@@ -1338,7 +1481,7 @@
       <xsl:apply-templates select="*[not(self::annotation) and not(self::edition) and not(self::person-group)
         and not(self::collab) and not(self::comment) and not(self::year) and not (self::article-title)]|text()" mode="none"/>
       <xsl:call-template name="citationComment"/>
-      <xsl:if test="extraCitationInfo/@doi and not(ext-link)">
+      <xsl:if test="extraCitationInfo/@doi and not(ext-link) and not(comment/ext-link)">
         <xsl:variable name="citedArticleDoi"><xsl:value-of select="extraCitationInfo/@doi"/></xsl:variable>
         doi:
         <xsl:element name="a">
@@ -1354,7 +1497,7 @@
       <xsl:apply-templates select="collab" mode="book"/>
       <xsl:apply-templates select="*[not(self::edition) and not(self::person-group) and not(self::collab) and not(self::comment)] | text()" mode="none"/>
       <xsl:call-template name="citationComment" />
-      <xsl:if test="extraCitationInfo/@doi and not(ext-link)">
+      <xsl:if test="extraCitationInfo/@doi and not(ext-link) and not(comment/ext-link)">
         <xsl:variable name="citedArticleDoi"><xsl:value-of select="extraCitationInfo/@doi"/></xsl:variable>
         doi:
         <xsl:element name="a">
@@ -1754,7 +1897,7 @@
       <xsl:if test="not(self::node()='.')">
         <xsl:text> </xsl:text>
         <xsl:apply-templates/>
-        <xsl:if test="substring(.,string-length(.)) != '.'">
+        <xsl:if test="substring(.,string-length(.)) != '.' and not(ends-with(..,'.'))">
           <xsl:text>. </xsl:text>
         </xsl:if>
       </xsl:if>
@@ -1807,10 +1950,10 @@
         <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
         <xsl:attribute name="id"><xsl:value-of select="@id"/></xsl:attribute>
       </xsl:element>
-      <p>
+      <xsl:variable name="objURI"><xsl:value-of select="@xlink:href"/></xsl:variable>
+      <p class="siTitle">
         <strong>
           <xsl:element name="a">
-            <xsl:variable name="objURI"><xsl:value-of select="@xlink:href"/></xsl:variable>
             <xsl:attribute name="href">
               <xsl:value-of select="concat($pubAppContext,'/article/fetchSingleRepresentation.action?uri=',$objURI)"/>
             </xsl:attribute>
@@ -1819,10 +1962,70 @@
           <xsl:apply-templates select="caption/title"/>
         </strong>
       </p>
-      <xsl:apply-templates select="caption/p"/>
+
+      <!--here, we're appending SI DOI after the caption but before the file type-->
+      <xsl:variable name="siDOI">
+        <xsl:value-of select="replace($objURI,'info:doi/','doi:')"/>
+      </xsl:variable>
+
+      <xsl:choose>
+
+        <!--If one or no caption/p, insert doi-->
+        <xsl:when test="count(caption/p) &lt; 2">
+          <!--doi-->
+          <p class="siDoi">
+            <xsl:value-of select="$siDOI"/>
+          </p>
+          <!--add class to target styling-->
+          <xsl:for-each select="caption/p">
+            <xsl:call-template name="postSiClass"/>
+          </xsl:for-each>
+        </xsl:when>
+
+        <!--if 2 caption/p elements, each needs it's own class for styling-->
+        <xsl:when test="count(caption/p) = 2">
+          <!--the first -->
+          <xsl:for-each select="caption/p[position() = 1]">
+            <xsl:call-template name="preSiClass"/>
+          </xsl:for-each>
+          <!--doi-->
+          <p class="siDoi">
+            <xsl:value-of select="$siDOI"/>
+          </p>
+          <!--the last-->
+          <xsl:for-each select="caption/p[last()]">
+            <xsl:call-template name="postSiClass"/>
+          </xsl:for-each>
+        </xsl:when>
+
+        <!--if more than 2 caption/p elements, space out the verbal elements and close spacing between doi-->
+        <!--and file type and size information-->
+        <xsl:when test="count(caption/p) &gt; 2">
+          <xsl:apply-templates select="caption/p[position() &lt; last() - 1]"/>
+          <!--<xsl:apply-templates select="caption/p"/>-->
+
+          <!--second from last element gets a class for styling targetting-->
+          <!--<xsl:apply-templates select="caption/p[position() = last() - 1]"/>-->
+          <xsl:for-each select="caption/p[position() = last() - 1]">
+            <xsl:call-template name="preSiClass"/>
+          </xsl:for-each>
+
+          <!--doi goes here-->
+          <p class="siDoi">
+            <xsl:value-of select="$siDOI"/>
+          </p>
+
+          <!--final element-->
+          <xsl:for-each select="caption/p[last()]">
+            <xsl:call-template name="postSiClass"/>
+          </xsl:for-each>
+        </xsl:when>
+
+      </xsl:choose>
+
     </xsl:template>
 
-    <!-- 1/4/12: suppress, we don't use -->
+  <!-- 1/4/12: suppress, we don't use -->
     <xsl:template match="tex-math"/>
 
     <!-- 1/4/12: plos modifications (remove mml prefix from all math elements, required for MathJax to work) -->

@@ -81,7 +81,7 @@ button, select, textarea, input:not([type="radio"]):not([type="checkbox"]) {
   margin: 0;
 }
 
-input[type="button"], input[type="submit"], input[type="reset"], button {
+input[type="button"], input[type="submit"], input[type="radio"], input[type="checkbox"], input[type="reset"], select, button {
   cursor: pointer;
 }
 
@@ -301,7 +301,10 @@ th {
 }
 
 .btn,
-a.btn {
+a.btn,
+/* active an inactive buttons in search results */
+#search-view span.figs,
+#search-view span.list  {
   background: #333;
   font-size: 15px;
   line-height: 35px;
@@ -330,6 +333,17 @@ a.btn {
   color: #fff;
   text-decoration: none;
 }
+
+/* inactive button */
+/* clear all filters button */
+.clear-filter .btn.primary,
+/* search results buttons */
+#fig-search-block span.list,
+#search-results-block span.figs{
+     background-color: #646464;
+     color: #FFF;
+}
+
 
 input.btn {
   line-height: normal;
@@ -736,6 +750,23 @@ html:not(.js) #nav-main > ul > li:hover .submenu {
   margin-bottom: 6px;
 }
 
+/*supporting information*/
+.siTitle {
+  margin-bottom: 0;
+}
+
+.siDoi {
+  margin-bottom: 0;
+}
+
+.preSiDOI {
+  margin-bottom: 0;
+}
+
+.postSiDOI {
+  margin-top: 0;
+}
+
 /*pageftr*/
 #pageftr {
   color: #fff;
@@ -762,7 +793,7 @@ html:not(.js) #nav-main > ul > li:hover .submenu {
 
 #pageftr .nav-aux {
   word-spacing: 7px;
-  margin-top: 30px;
+  margin-top: 45px;
 }
 
 #pageftr .nav-aux a {
@@ -1516,7 +1547,6 @@ span.author span.rel-footnote {
   background: url(../images/bul.pt.blu.gif) no-repeat 0 3px;
 }
 
-
 #nav-figures {
   display: none;
 }
@@ -2018,6 +2048,115 @@ html:not(.js) #figure-thmbs {
   background-position: -25px -50px;
 }
 
+/* table */
+div.table-wrap {
+  position: relative;
+}
+
+.article div.table-wrap {
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+div.table-wrap div.table {
+  overflow: auto;
+  border: solid 1px #efefef;
+}
+
+.article div.table-wrap div.table {
+  max-height: 550px;
+}
+
+div.table-wrap table {
+  margin: 0px;
+  width: 100%;
+}
+
+div.table-wrap table td {
+  padding: 2px;
+}
+
+div.table-wrap table thead tr:first-child {
+  background-color: #a0a0a0;
+  font-weight: bold;
+}
+
+div.table-wrap table thead tr:first-child td {
+  color: #ffffff;
+}
+
+div.table-wrap table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+div.table-wrap table tbody tr:nth-child(even) {
+  background-color: #efefef;
+}
+
+div.table-wrap p.caption {
+  font-weight: bold;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+div.table-wrap div.table-download {
+  display: none;
+  vertical-align: middle;
+}
+
+.article div.table-wrap div.table-download {
+  display: block;
+}
+
+div.table-wrap div.table-download .icon {
+  background-color: #f8af2d;
+  color: #333;
+  position: relative;
+  width: 30px;
+  height: 15px;
+  text-align: center;
+  font-size: 9px;
+  border-radius: 2px;
+  padding-top: 3px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: center;
+  text-align: center;
+  text-decoration: none;
+}
+
+div.table-wrap div.table-download .label {
+ cursor: pointer;
+}
+
+div.table-wrap .expand {
+  display: none;
+}
+
+.article .table-wrap .expand {
+  display: block;
+  height: 25px;
+  width: 25px;
+  background: url(../images/icon.sprite.expand.png) no-repeat;
+  position: absolute;
+  top: -30px;
+  right: 0px;
+  cursor: pointer;
+}
+
+.article .table-wrap .expand:hover {
+  background-position: 0 -25px;
+}
+
+div.table-wrap .table-footnote {
+  font-size: 10px;
+}
+
+div.table-wrap .table-footnote .fn-label {
+  vertical-align: super;
+  font-size: 10px;
+}
+
 .article .abstract,
 .article .articleinfo,
 .article .editorsAbstract,
@@ -2166,7 +2305,6 @@ ul.bulletlist li {
   padding-left: 12px;
 }
 
-
 /* comments */
 #thread h2 {
   margin: 30px 10px;
@@ -2288,7 +2426,7 @@ ul.bulletlist li {
   word-wrap: break-word;
 }
 
-#responses .response .response_title  {
+#responses .response .response_title {
   word-wrap: break-word;
 }
 
@@ -2325,7 +2463,7 @@ ul.bulletlist li {
 }
 
 .reply .reply_content {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .reply a {
@@ -2340,38 +2478,19 @@ ul.bulletlist li {
 
 .reply form fieldset {
   min-width: 49%;
- }
-
-/* spacing for correction checkbox and comment title fields in next two rules*/
-.reply form fieldset div{
-  margin: 5 !important;
-}
-.reply form fieldset #correction_checkbox{
-  margin-bottom: 10px;
-}
-
-/* space between help text and competing interest radio buttons */
-.reply form fieldset div.help{
-  margin-bottom: 20px;
+  float: left;
 }
 
 /* spacing between competing interest radio buttons */
-.reply form fieldset div.cf{
-  height: 15px;
+.reply form fieldset div.cf {
   margin-bottom: 10px;
 }
 
 /* competing interest text area margins */
 .reply form fieldset div.competing_text,
-.reply form fieldset #flag_text{
-  margin-top: 5px;
-  margin-bottom: 20px;
-  }
-
-/* max width of text area for expanding text areas and min-height */
-.expandingText{
-  min-height: 80px;
-  max-width: 695px;
+.reply form fieldset #flag_text {
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 .reply.review form fieldset {
@@ -2388,22 +2507,22 @@ ul.bulletlist li {
 .reply form fieldset textarea {
   display: block;
   padding: 3px;
-  width: 94%;
+  width: 687px;
   border: 1px solid #f2f2f2;
   margin: 0 0 10px 0 !important;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .reply form fieldset textarea {
   height: 106px;
   resize: none;
-  margin: 0 0 20px 0 !important;
 }
 
 .reply form fieldset textarea.competing_interests {
   min-height: auto;
   height: 88px;
   resize: none;
+  margin-bottom: 12px !important;
 }
 
 .reply form fieldset div {
@@ -2412,15 +2531,18 @@ ul.bulletlist li {
 
 .reply form input[type=radio], .reply form input[type=checkbox] {
   float: left;
-  width: auto;
-  margin: 0px 5px 8px 0 !important;
   border: none;
+}
+
+.reply form input[type=radio] {
+  width: auto;
+  margin: 0px 5px 0px 0 !important;
 }
 
 .reply form input[type=checkbox] {
   width: 18px;
-  height: 18px;
-  margin: 0 5px 8px 0 !important;
+  height: 14px;
+  margin: 0 5px 10px 0 !important;
 }
 
 .reply form span.btn {
@@ -2478,10 +2600,10 @@ ul.bulletlist li {
 .reply .error {
   margin-bottom: 5px;
   padding: 5px;
-  border: 1px solid #c00;
-  background-color: #fff;
+  background-color: #333;
   font-style: normal;
-  color: #000
+  font-weight: bold;
+  color: #FF3C5C;
 }
 
 #reply_loading.loading_overlay img {
@@ -2735,6 +2857,7 @@ ul.bulletlist li {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 6px;
 }
 
 /* sidebar linked from */
@@ -2814,7 +2937,7 @@ ul.bulletlist li {
 }
 
 .journal_current .issue_container {
-  overflow:auto;
+  overflow: auto;
 }
 
 .journal_issues {
@@ -3084,7 +3207,12 @@ dl.authors dt {
   margin: 0 5px 6px 10px;
 }
 
-#hdr-search-results .options .btn {
+#hdr-search-results .options .btn,
+/* search results buttons */
+#search-results-block span.list,
+#search-results-block span.figs,
+#fig-search-block span.list,
+#fig-search-block span.figs {
   line-height: 28px;
   font-size: 13px;
 }
@@ -3493,13 +3621,19 @@ img.clear-filter {
   min-height: 35px;
 }
 
+/*search results header*/
 .hdr-results h2 {
   float: left;
-  font-size: 0.923em;
+  font: 16px 'Arial';
   font-weight: normal;
   padding: 0 21px 0 10px;
   width: 296px;
   margin: 4px 0 15px;
+}
+
+.hdr-results span.text{
+  font:16px 'Arial';
+  margin-right: 9px;
 }
 
 .hdr-results h2 span {
@@ -3536,45 +3670,21 @@ img.clear-filter {
 }
 
 #search-view {
-  font-size: 0.923em;
   line-height: 25px;
 }
 
-#search-view span.figs, span.list {
-  color: #333;
-  font-weight: bold;
-  padding-left: 7px;
-  padding-right: 7px;
-}
+/* search results figure/list button size and font */
+/*#search-results-block span.list,*/
+/*#search-results-block span.figs,*/
+/*#fig-search-block span.list,*/
+/*#fig-search-block span.figs {*/
+  /*line-height: 28px;*/
+/*}*/
 
-#search-view span.search-view-icon {
-  background: url(../images/icon.sprite.results.png) no-repeat;
-  display: inline-block;
-  width: 11px;
-  height: 11px;
-  padding-right: 5px;
-}
-
-#search-view span.figs .search-view-icon {
-  background-position: 0px 0px;
-}
-
-#search-view span.list .search-view-icon {
-  background-position: 0px -19px;
-}
-
-#search-view span.figs {
-  border-right: 1px solid #b3b3b3;
-}
-
-#fig-search-block #search-view span.list:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-#search-results-block #search-view span.figs:hover {
-  text-decoration: underline;
-  cursor: pointer;
+/* margin to right of figure button */
+#search-results-block span.figs,
+#fig-search-block span.figs {
+  margin-right: 1px;
 }
 
 #search-results-block .hdr-results {
@@ -3913,6 +4023,10 @@ form.advSearch ol {
   padding: 6px 0 0 20px;
 }
 
+#unformattedSearchFormId label {
+  cursor: pointer;
+}
+
 #unformattedSearchFormId .options fieldset p {
   margin: 2px 0 7px 3px;
 }
@@ -4036,7 +4150,7 @@ legend.conjunction span {
   width: 870px;
   overflow: hidden;
   position: fixed;
-  z-index: 600;
+  z-index: 150;
 }
 
 #fig-viewer .header {
@@ -4306,7 +4420,7 @@ legend.conjunction span {
 #fig-viewer-slides .txt .titleexpand {
   width: 605px !important;
   white-space: normal !important;
-  float:none !important;
+  float: none !important;
 }
 
 #fig-viewer-slides .txt .hidden {
@@ -4338,10 +4452,10 @@ legend.conjunction span {
   text-decoration: underline;
   cursor: pointer;
   margin-left: 5px;
-  float:right;
+  float: right;
 }
 
-#fig-viewer-slides .txt .toggle.less{
+#fig-viewer-slides .txt .toggle.less {
   margin-bottom: 5px;
 }
 
@@ -4398,7 +4512,7 @@ legend.conjunction span {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 500;
+  z-index: 110;
   opacity: 0.6;
   filter: alpha(opacity = 60);
 }
@@ -4729,6 +4843,52 @@ table#pageViewsTable tr.percent td {
   color: black;
 }
 
+/* styling for average usage stat information */
+#averageViewsSummary {
+  width: 600px;
+  border: 1px solid #cccccc;
+  background-color: #e5e4e4;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+#averageViewsSummary div {
+  padding: 8px 8px 0px 8px;
+}
+
+#averageViewsSummary .colorbox {
+  border: 1px solid #cccccc;
+  background-color: #01DF01;
+  width: 9px;
+  height: 9px;
+  display: block;
+  float: left;
+  margin-top: 4px;
+}
+
+#averageViewsSummary .ir {
+  float: right;
+  border-radius: 8.5px;
+  -webkit-border-radius: 8.5px;
+  -moz-border-radius: 8.5px;
+}
+
+#averageViewsSummary select {
+  background-color: #ffffff;
+  border-radius: 4px;
+}
+
+#averageViewsSummary select option {
+  background-color: #ffffff;
+}
+
+#beta {
+  font: italic bold 10px Arial;
+  color: #00be00;
+}
+
+/* END styling for average usage stat information */
+
 a.ir {
   display: inline-block;
   text-indent: -9999px;
@@ -4827,18 +4987,26 @@ a.irs {
 }
 
 .formlabel {
-    margin-bottom: 6px;
-    display: block;
-    font-size: 12px;
-    color: #333;
-    font-weight: bold;}
+  margin-bottom: 6px;
+  display: block;
+  font-size: 12px;
+  color: #333;
+  font-weight: bold;
+}
 
-.form ol .form-error { color: #f03; }
+.form ol .form-error {
+  color: #f03;
+}
 
-.emailrequired {color:#A61200 }
+.emailrequired {
+  color: #A61200
+}
 
-.required {color: #f03; font-size:13px;  font-weight: bold;}
-
+.required {
+  color: #f03;
+  font-size: 13px;
+  font-weight: bold;
+}
 
 /************* Article Metrics page: Metrics Tiles and Rating Tile *****************/
 
@@ -4903,7 +5071,6 @@ div.metrics_tile_footer_no_link {
   font-size: 1.30em;
   text-decoration: none;
   font-weight: bold;
-  padding-top: 1px;
 }
 
 div.metrics_tile:hover .metrics_tile_rating_footer {
@@ -5004,7 +5171,6 @@ table.tile_mini td.data2 {
 
 /* styles for static page content */
 
-
 #static-wrap, #static-content-wrap {
   padding: 30px 30px 30px 10px;
 }
@@ -5027,7 +5193,7 @@ table.tile_mini td.data2 {
   margin-top: 0px
 }
 
-#static-content-wrap  ul, ol{
+#static-content-wrap  ul, ol {
   padding-left: 45px;
 }
 
@@ -5036,7 +5202,7 @@ table.tile_mini td.data2 {
 }
 
 #static-content-wrap p.intro {
-    font-style: italic
+  font-style: italic
 }
 
 /************* edboard pages *****************/
@@ -5058,13 +5224,17 @@ table.tile_mini td.data2 {
 #filter_container #clearFilter {
   position: absolute;
   top: 2px;
-  left: 268px;
+  left: 267px;
   width: 18px;
-  height: 18px;
+  height: 17px;
   cursor: default;
   background: #606060 url('/images/btn.close.png') no-repeat 3px 3px;
-  border-radius: 9px;
-  background-size: 12px 12px;"
+  border-radius: 3px;
+  background-size: 12px 12px;
+}
+
+#filter_container #clearFilter:hover {
+  background: #808080 url("/images/btn.close.png") no-repeat scroll 3px 3px;
 }
 
 /********** Find article *********************/
@@ -5077,12 +5247,12 @@ div.findArticle h4 {
 }
 
 .collapsibleContainerTitle {
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .collapsibleContainerTitle div {
-  padding-top:5px;
-  padding-left:10px;
+  padding-top: 5px;
+  padding-left: 10px;
 }
 
 .collapsibleContainerContent {
@@ -5092,7 +5262,9 @@ div.findArticle h4 {
 /***************************** Adv search checkboxes *****************/
 .checkboxWrapper {
   position: relative;
+  cursor: pointer;
 }
+
 .checkboxOverlay {
   position: absolute;
   left: 0;
@@ -5100,4 +5272,39 @@ div.findArticle h4 {
   top: 0;
   bottom: 0;
   background: url(../images/transparent.gif) repeat; /*to get this work on IE*/
+}
+
+ol.references ul.find {
+  margin: 0;
+  padding: 0;
+  height: 25px;
+}
+
+ol.references ul.find li {
+  float: left;
+  margin-right: 4px;
+  margin-left: 20px;
+  list-style-type: disc;
+}
+
+ol.references ul.find li:first-child {
+  margin-left: 0px;
+  list-style-type: none;
+}
+
+ol.references li {
+  list-style-type: none;
+}
+
+ol.references li span.label {
+  margin-left: -26px;
+  float: left;
+  width: 20px;
+  text-align: right;
+}
+
+ol.references ul.find-nolinks {
+  margin: 0;
+  padding: 0;
+  height: 8px;
 }
