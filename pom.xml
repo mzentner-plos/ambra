@@ -19,6 +19,18 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>Ambra</name>
+    <url>http://www.ambraproject.org</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
       <comments>Copyright (c) 2006-2012 by The Public Library of Science</comments>
       <distribution>repo</distribution>
