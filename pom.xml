@@ -11,11 +11,6 @@
   <description>Ambra publishing system</description>
   <url>http://www.ambraproject.org</url>
 
-  <organization>
-    <name>Ambra</name>
-    <url>http://www.ambraproject.org</url>
-  </organization>
-
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -24,6 +19,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
 
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
